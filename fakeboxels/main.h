@@ -8,10 +8,16 @@
                                    //bytes.
 
 namespace fakeboxels {
+	namespace utils {
+		struct Coord2D {
+			uint16_t x;
+			uint16_t y;
+		};
+	}
 	namespace automata {
 		template<typename T> class Grid {
 		private:
-			T* _value = NULL; //note: y is the wider axis
+			T* _value      = NULL;      //note: y is the wider axis
 			uint16_t _xsz  = NULL; //note: unadjusted for margin
 			uint16_t _ysz  = NULL; //note: unadjusted for margin
 		public:
@@ -47,6 +53,7 @@ namespace fakeboxels {
 				//(if it reaches this line, that is)
 			}
 
+			//Do exactly what they say on the tin
 			T get_item_by_coord(uint16_t x, uint16_t y) {
 				//Check if the coordinate is within bounds
 				if (x>_xsz || y>_ysz)
@@ -67,6 +74,11 @@ namespace fakeboxels {
 				//If it is within bounds, set the value
 				_value[y * _xsz + x] = value;
 			}
+
+			//obligatory access function //obligatory function to grab _xsz and _ysz
+			fakeboxels::utils::Coord2D grab_size() {
+				return { _xsz,_ysz };
+			} 
 		};
 	}
 }

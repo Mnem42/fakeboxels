@@ -2,7 +2,7 @@
 //
 
 #include <iostream>
-#include "automata.h"
+#include "main.h"
 
 int main()
 {
