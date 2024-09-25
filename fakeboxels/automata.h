@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
-#include <exception>
+#include <stdexcept>
 
-#define MAX_GRID_MEMUSAGE 16777216 //The actual grid memory usage is lower, but
+#define MAX_GRID_MEMUSAGE 128 //The actual grid memory usage is lower, but
                                    //extra space is needed for certain algorithms.
                                    //16777216 is 2^12 squared. This value is in
                                    //bytes.
@@ -12,25 +12,31 @@ namespace fakeboxels {
 		template<typename T> class Grid {
 		private:
 			T* _value = NULL; //note: y is the wider axis
-			int _xsz  = NULL; //note: unadjusted for margin
-			int _ysz  = NULL; //note: unadjusted for margin
+			uint16_t _xsz  = NULL; //note: unadjusted for margin
+			uint16_t _ysz  = NULL; //note: unadjusted for margin
 		public:
-			Grid(uint16_t x, uint16_t y) {
+			Grid(uint16_t x, uint16_t y) { //error flags 
+
 				//Check if the grid is too large or too small
-				if (((x - 2) * (y - 2) * sizeof(T)) > MAX_GRID_MEMUSAGE 
+				// 
+				//It throws an exception if it's out of bounds, because
+				// - It should be called rarely anyway
+				// - It shouldn't really happen
+				if (((x + 2) * (y + 2) * sizeof(T)) > MAX_GRID_MEMUSAGE 
 					|| x==0 || y==0)                                    
 				{
-					throw 1;
+					throw std::invalid_argument("Input not in range");
 				}
 
-				//If it is within limits, try doing the dynamic allocation
-				
-				//The format is kinda cursed, but it's abstracted anyway through
+				//The array format is kinda cursed, but it's abstracted anyway, through
 				//other functions
+				// 
+				//Check if it actually allocated. Will throw an exception because of new
+				_value = new T[(x + 2) * (y + 2)];
 
-				//Check if it actually allocated
-				if (_value == NULL) {
-					throw 2;
+				//zero initialise everything
+				for (int i = 0; i < (x + 2)*(y + 2);i++) {
+					_value[i] = 0;
 				}
 
 				//Actually set _xsz and _ysz
@@ -41,21 +47,21 @@ namespace fakeboxels {
 				//(if it reaches this line, that is)
 			}
 
-			get_item_by_coord(uint16_t x, uint16_t y) {
+			T get_item_by_coord(uint16_t x, uint16_t y) {
 				//Check if the coordinate is within bounds
 				if (x>_xsz || y>_ysz)
 				{
-					throw 1;
+					throw std::invalid_argument("Access outside possible bounds");
 				}
 
 				//If it is within bounds, return the value
-				return _value[y*_xsz+x]
+				return _value[y * _xsz + x];
 			}
-			set_item_by_coord(uint16_t x, uint16_t y, T value) {
+			void set_item_by_coord(uint16_t x, uint16_t y, T value) {
 				//Check if the coordinate is within bounds
 				if (x > _xsz || y > _ysz)
 				{
-					throw 1;
+					throw std::invalid_argument("Access outside possible bounds");
 				}
 
 				//If it is within bounds, set the value

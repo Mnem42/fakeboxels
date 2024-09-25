@@ -1,0 +1,2 @@
+﻿  fakeboxels.cpp
+LINK : fatal error LNK1168: cannot open C:\Data\Programs\fakeboxels\x64\Debug\fakeboxels.exe for writing

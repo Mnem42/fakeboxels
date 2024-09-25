@@ -2,10 +2,15 @@
 //
 
 #include <iostream>
+#include "automata.h"
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    fakeboxels::automata::Grid<uint8_t> grid(10000000000,100000000);
+    grid.set_item_by_coord(2, 2, 97);
+    auto value=grid.get_item_by_coord(2, 2);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
