@@ -15,6 +15,14 @@ namespace fakeboxels {
 		};
 	}
 	namespace automata {
+
+		//Not really the most memory efficient, but oh well
+		template<class T,typename ItemType> concept AutomataHandler = requires(T a)
+		{
+			{ a.run_automata(new Grid<ItemType>(1,1)) } -> std::convertible_to<uint16_t[9]>;
+		};
+
+		//Grid type for automata stuff
 		template<typename T> class Grid {
 		private:
 			T* _value      = NULL;      //note: y is the wider axis
@@ -128,6 +136,11 @@ namespace fakeboxels {
 
 				//If it is within bounds, set the value
 				_value[coord.y * _xsz + coord.x] = value;
+			}
+
+			//Hands the grid over to an actual handler for the automata (modularity FTW)
+			template<AutomataHandler Handler> void run_automata_iter() {
+				Handler.do_automata(this);
 			}
 
 			//obligatory access function //obligatory function to grab _xsz and _ysz
