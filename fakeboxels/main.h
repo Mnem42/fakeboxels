@@ -21,6 +21,8 @@ namespace fakeboxels {
 			uint16_t _xsz  = NULL; //note: unadjusted for margin
 			uint16_t _ysz  = NULL; //note: unadjusted for margin
 		public:
+			//Constructors which also do some allocation. There's an overload which
+			//uses coordinates instead
 			Grid(uint16_t x, uint16_t y) { //error flags 
 
 				//Check if the grid is too large or too small
@@ -52,6 +54,37 @@ namespace fakeboxels {
 				//Yay, it didn't fail, and you have your very own grid!
 				//(if it reaches this line, that is)
 			}
+			Grid(fakeboxels::utils::Coord2D size) { //error flags 
+
+				//Check if the grid is too large or too small
+				// 
+				//It throws an exception if it's out of bounds, because
+				// - It should be called rarely anyway
+				// - It shouldn't really happen
+				if (((size.x + 2) * (size.y + 2) * sizeof(T)) > MAX_GRID_MEMUSAGE
+					|| size.x == 0 || size.y == 0)
+				{
+					throw std::invalid_argument("Input not in range");
+				}
+
+				//The array format is kinda cursed, but it's abstracted anyway, through
+				//other functions
+				// 
+				//Check if it actually allocated. Will throw an exception because of new
+				_value = new T[(size.x + 2) * (size.y + 2)];
+
+				//zero initialise everything
+				for (int i = 0; i < (size.x + 2) * size.(y + 2); i++) {
+					_value[i] = 0;
+				}
+
+				//Actually set _xsz and _ysz
+				_xsz = size.x;
+				_ysz = size.y;
+
+				//Yay, it didn't fail, and you have your very own grid!
+				//(if it reaches this line, that is)
+			}
 
 			//Do exactly what they say on the tin
 			T get_item_by_coord(uint16_t x, uint16_t y) {
@@ -73,6 +106,28 @@ namespace fakeboxels {
 
 				//If it is within bounds, set the value
 				_value[y * _xsz + x] = value;
+			}
+
+			//Some overloads to use coords instead of seperate uints
+			T get_item_by_coord(fakeboxels::utils::Coord2D coord) {
+				//Check if the coordinate is within bounds
+				if (coord.x > _xsz || coord.y > _ysz)
+				{
+					throw std::invalid_argument("Access outside possible bounds");
+				}
+
+				//If it is within bounds, return the value
+				return _value[coord.y * _xsz + coord.x];
+			}
+			void set_item_by_coord(fakeboxels::utils::Coord2D coord, T value) {
+				//Check if the coordinate is within bounds
+				if (coord.x > _xsz || coord.y > _ysz)
+				{
+					throw std::invalid_argument("Access outside possible bounds");
+				}
+
+				//If it is within bounds, set the value
+				_value[coord.y * _xsz + coord.x] = value;
 			}
 
 			//obligatory access function //obligatory function to grab _xsz and _ysz
