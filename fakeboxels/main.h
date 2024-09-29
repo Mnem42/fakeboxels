@@ -14,22 +14,17 @@ namespace fakeboxels {
 		};
 	}
 	namespace automata {
+		struct Element {
 
-		//Automata handling stuff
-		template<class T, typename ItemType> concept AutomataHandler = requires(T a)
-		{
-			{ a.run_automata(new Grid<ItemType>(1, 1)) } -> std::convertible_to < Grid<ItemType>>;
-		};
-		//Exists for... reasons
-		template<class T> concept AutomataCell = requires(T a) {
-			{ a.type_id } -> std::convertible_to<uint16_t>;
 		};
 
 		struct Cell {
-			Element* element;
-		};
-
-		struct Element {
+		private:
+			Element* _element;
+		public:
+			Element* get_element() {
+				return _element;
+			}
 
 		};
 
@@ -150,8 +145,8 @@ namespace fakeboxels {
 			}
 
 			//Hands the grid over to an actual handler for the automata (modularity FTW)
-			template<AutomataHandler Handler> void run_automata_iter() {
-				Handler.do_automata(this);
+			void run_automata_iter() {
+				return;
 			}
 
 			//obligatory function to grab _xsz and _ysz
@@ -159,15 +154,20 @@ namespace fakeboxels {
 				return { _xsz,_ysz };
 			}
 		};
+
+		template<class T> concept AutomataCell = requires(T a) {
+			{ a.get_element() } -> std::convertible_to<Element*>;
+		};
 	}
 	namespace DefaultHandlers {
 		template<fakeboxels::automata::AutomataCell Cell_T> class Default {
-			fakeboxels::utils::Coord2D gridsize;
-			Grid<Cell_t> run_automata(fakeboxels::automata::Grid grid) {
+		public:
+			void run_automata(fakeboxels::automata::Grid* grid) {
+				fakeboxels::utils::Coord2D gridsize = grid->grab_size();
 				for (int x = 1; x < gridsize.x - 1); x++){
-					
+
 				}
 			}
-		}
+		};
 	}
 }
