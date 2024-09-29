@@ -2,10 +2,9 @@
 #include <stdint.h>
 #include <stdexcept>
 
-#define MAX_GRID_MEMUSAGE 128 //The actual grid memory usage is lower, but
+#define MAX_GRID_MEMUSAGE 10000 //The actual grid memory usage is lower, but
                                    //extra space is needed for certain algorithms.
-                                   //16777216 is 2^12 squared. This value is in
-                                   //bytes.
+                                   //The value is arbitrary
 
 namespace fakeboxels {
 	namespace utils {
@@ -17,17 +16,25 @@ namespace fakeboxels {
 	namespace automata {
 
 		//Automata handling stuff
-		template<class T,typename ItemType> concept AutomataHandler = requires(T a)
+		template<class T, typename ItemType> concept AutomataHandler = requires(T a)
 		{
-			{ a.run_automata(new Grid<ItemType>(1,1)) } -> std::convertible_to<uint16_t[9]>;
+			{ a.run_automata(new Grid<ItemType>(1, 1)) } -> std::convertible_to < Grid<ItemType>>;
 		};
 		//Exists for... reasons
 		template<class T> concept AutomataCell = requires(T a) {
 			{ a.type_id } -> std::convertible_to<uint16_t>;
 		};
 
+		struct Cell {
+			Element* element;
+		};
+
+		struct Element {
+
+		};
+
 		//Grid type for automata stuff
-		template<typename T> class Grid {
+		template<AutomataCell T> class Grid {
 		private:
 			T* _value      = NULL;      //note: y is the wider axis
 			uint16_t _xsz  = NULL; //note: unadjusted for margin
@@ -101,7 +108,7 @@ namespace fakeboxels {
 			//Do exactly what they say on the tin
 			T get_item_by_coord(uint16_t x, uint16_t y) {
 				//Check if the coordinate is within bounds
-				if (x>_xsz || y>_ysz)
+				if (x > _xsz || y > _ysz)
 				{
 					throw std::invalid_argument("Access outside possible bounds");
 				}
@@ -147,10 +154,20 @@ namespace fakeboxels {
 				Handler.do_automata(this);
 			}
 
-			//obligatory access function //obligatory function to grab _xsz and _ysz
+			//obligatory function to grab _xsz and _ysz
 			fakeboxels::utils::Coord2D grab_size() {
 				return { _xsz,_ysz };
-			} 
+			}
 		};
+	}
+	namespace DefaultHandlers {
+		template<fakeboxels::automata::AutomataCell Cell_T> class Default {
+			fakeboxels::utils::Coord2D gridsize;
+			Grid<Cell_t> run_automata(fakeboxels::automata::Grid grid) {
+				for (int x = 1; x < gridsize.x - 1); x++){
+					
+				}
+			}
+		}
 	}
 }
