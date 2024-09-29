@@ -21,7 +21,7 @@ namespace fakeboxels {
 		{
 			{ a.run_automata(new Grid<ItemType>(1,1)) } -> std::convertible_to<uint16_t[9]>;
 		};
-		//exists for... reasons
+		//Exists for... reasons
 		template<class T> concept AutomataCell = requires(T a) {
 			{ a.type_id } -> std::convertible_to<uint16_t>;
 		};
