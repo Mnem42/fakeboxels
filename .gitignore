@@ -33,3 +33,8 @@
 /.vs/fakeboxels/FileContentIndex
 /.vs/fakeboxels/v17/ipch/AutoPCH
 /.vs/fakeboxels/v17
+
+# Debug outputs
+/Debug/
+/fakeboxels/Debug/
+/fakeboxels/x64/
