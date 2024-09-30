@@ -15,17 +15,13 @@ namespace fakeboxels {
 	}
 	namespace automata {
 		struct Element {
-
-		};
-
-		struct Cell {
-		private:
-			Element* _element;
-		public:
-			Element* get_element() {
-				return _element;
+			unsigned int uid = 1; //Defaulting as zero glitches out stuff
+			Element(){
+				uid = 1;
 			}
-
+		};
+		template<class T> concept AutomataCell = requires(T a) {
+			{a._element} -> std::convertible_to<Element*>;
 		};
 
 		//Grid type for automata stuff
@@ -54,12 +50,11 @@ namespace fakeboxels {
 				//other functions
 				// 
 				//Check if it actually allocated. Will throw an exception because of new
-				_value = new T[(x + 2) * (y + 2)];
-
-				//zero initialise everything
-				for (int i = 0; i < (x + 2)*(y + 2);i++) {
-					_value[i] = 0;
+				_value = new T[(x + 2) * (y + 2)]();
+				for (int i = 0; i < (x + 2) * (y + 2);i++) {
+					_value = new T();
 				}
+
 
 				//Actually set _xsz and _ysz
 				_xsz = x;
@@ -86,11 +81,6 @@ namespace fakeboxels {
 				// 
 				//Check if it actually allocated. Will throw an exception because of new
 				_value = new T[(size.x + 2) * (size.y + 2)];
-
-				//zero initialise everything
-				for (int i = 0; i < (size.x + 2) * size.(y + 2); i++) {
-					_value[i] = 0;
-				}
 
 				//Actually set _xsz and _ysz
 				_xsz = size.x;
@@ -155,17 +145,32 @@ namespace fakeboxels {
 			}
 		};
 
-		template<class T> concept AutomataCell = requires(T a) {
-			{ a.get_element() } -> std::convertible_to<Element*>;
+		template<class T, class Cell_T> concept AutomataHandler = requires(Cell_T ct, T a) {
+			{ct.get_element()}->std::same_as<Element*>;
+			{a.run_automata(new Grid<Cell_T>(1, 1))}->std::same_as<void>;
 		};
 	}
-	namespace DefaultHandlers {
-		template<fakeboxels::automata::AutomataCell Cell_T> class Default {
-		public:
-			void run_automata(fakeboxels::automata::Grid* grid) {
-				fakeboxels::utils::Coord2D gridsize = grid->grab_size();
-				for (int x = 1; x < gridsize.x - 1); x++){
+    namespace default_handlers {
 
+
+		//A custom handler must inherit from this
+		template<fakeboxels::automata::AutomataCell Cell_T> class BaseHandler {
+		public:
+			virtual void run_automata(fakeboxels::automata::Grid<Cell_T>* grid) {
+				fakeboxels::utils::Coord2D gridsize = grid->grab_size();
+				for (int x = 1; x < (gridsize.x - 1); x++){
+
+				}
+			}
+		};
+		
+		class DefaultCell {
+		public:
+			fakeboxels::automata::Element* _element = NULL;
+			DefaultCell() {
+				_element = new fakeboxels::automata::Element();
+				if (_element == NULL) {
+					throw std::invalid_argument("???");
 				}
 			}
 		};
